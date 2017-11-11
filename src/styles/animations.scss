@@ -1,0 +1,11 @@
+@import "./vars.scss";
+
+@keyframes missedkey {
+  from {
+    background-color: #f42;
+  }
+
+  50% {
+    background-color: $color-ivory;
+  }
+}
