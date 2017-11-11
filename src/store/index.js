@@ -1,7 +1,7 @@
 import Vue from 'vue';
 
 import prandomId from '@/utils/prandomId';
-import { PlayerState } from '@/consts';
+import { PlayerState, PLAY_TIME } from '@/consts';
 
 
 export function initKey() {
@@ -113,7 +113,7 @@ export default {
 
       // Now, play stuff.
       commit('updatePlayerPlayState', { playerId, state: PlayerState.PLAYING });
-      commit('setPlayerTimeLeft', { playerId, timeLeft: 30 });
+      commit('setPlayerTimeLeft', { playerId, timeLeft: PLAY_TIME });
     },
 
     playerHitKey({ state, commit, dispatch }, { playerId, key }) {

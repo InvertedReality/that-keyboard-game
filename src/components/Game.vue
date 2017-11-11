@@ -1,9 +1,19 @@
 <template lang="html">
   <div class="game">
-    <PlayerKeys class="keys" :playerId="0" />
-    <PlayerTimer class="timer" :playerId="0" />
-    <PlayerTimer class="timer" :playerId="1" />
-    <PlayerKeys class="keys" :playerId="1" />
+    <div class="player-container">
+      <div class="player-play-items">
+        <PlayerKeys class="keys" :playerId="0" />
+        <PlayerTimer class="timer" :playerId="0" />
+      </div>
+      <PlayerOverlays class="player-overlays" :playerId="0" />
+    </div>
+    <div class="player-container">
+      <div class="player-play-items">
+        <PlayerTimer class="timer" :playerId="1" />
+        <PlayerKeys class="keys" :playerId="1" />
+      </div>
+      <PlayerOverlays class="player-overlays" :playerId="1" />
+    </div>
   </div>
 </template>
 
@@ -12,6 +22,7 @@ import { Player0Keys, Player1Keys } from '@/consts';
 
 import PlayerKeys from './PlayerKeys';
 import PlayerTimer from './PlayerTimer';
+import PlayerOverlays from './PlayerOverlays';
 
 export default {
   data() {
@@ -59,6 +70,7 @@ export default {
   components: {
     PlayerKeys,
     PlayerTimer,
+    PlayerOverlays,
   },
 };
 </script>
@@ -70,6 +82,21 @@ export default {
 
   display: flex;
   flex-direction: row;
+  align-items: stretch;
+}
+
+.player-container {
+  flex: 1 1 auto;
+  position: relative;
+}
+
+.player-play-items {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
 }
 
 .keys {
@@ -78,5 +105,13 @@ export default {
 
 .timer {
   flex: 0 0 auto;
+}
+
+.player-overlays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 </style>
