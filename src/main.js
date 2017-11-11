@@ -5,14 +5,19 @@ import Vuex from 'vuex';
 import appStore from './store';
 import App from './App';
 
+import { initSoundStuffForPlayer } from './obnoxiousness';
+
 Vue.config.productionTip = false;
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store(appStore);
 
-store.dispatch('initPlayer', { playerId: 0 });
-store.dispatch('initPlayer', { playerId: 1 });
+store.dispatch('initPlayer', { playerId: '0' });
+store.dispatch('initPlayer', { playerId: '1' });
+
+initSoundStuffForPlayer('0');
+initSoundStuffForPlayer('1');
 
 /* eslint-disable no-new */
 new Vue({

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 
+import { playNextNote, pickTune } from '@/obnoxiousness';
 import prandomId from '@/utils/prandomId';
 import { PlayerState, PLAY_TIME } from '@/consts';
 
@@ -39,10 +40,15 @@ export default {
         state: PlayerState.IDLE,
         // NOTE: Handled with initPlayerKeys.
         keys: Array(7).join().split(',').map(initKey),
+
+        // Idle State.
+        idlePlayingIntervalId: null,
+
+        // Playing State.
         blockedKey: null,
         blockedTimerId: null,
         timeLeft: 0,
-        timeLeftTimerId: null,
+        timeLeftIntervalId: null,
         keysScored: 0,
       });
     },
@@ -51,16 +57,24 @@ export default {
       state.players[playerId].state = nextPlayState;
     },
 
+    startPlayerIdlePlaying(state, { playerId, intervalId }) {
+      state.players[playerId].idlePlayingIntervalId = intervalId;
+    },
+
+    stopPlayerIdlePlaying(state, { playerId }) {
+      state.players[playerId].idlePlayingIntervalId = null;
+    },
+
     setPlayerTimeLeft(state, { playerId, timeLeft }) {
       state.players[playerId].timeLeft = timeLeft;
     },
 
     startPlayerTimeLeft(state, { playerId, timerId }) {
-      state.players[playerId].timeLeftTimerId = timerId;
+      state.players[playerId].timeLeftIntervalId = timerId;
     },
 
     stopPlayerTimeLeft(state, { playerId }) {
-      state.players[playerId].timeLeftTimerId = null;
+      state.players[playerId].timeLeftIntervalId = null;
     },
 
     decrementPlayerTimeLeft(state, { playerId }) {
@@ -101,19 +115,45 @@ export default {
       commit('initPlayer', { playerId });
     },
 
-    idlePlayer({ state, commit }, { playerId }) {
+    idlePlayer({ state, commit, dispatch }, { playerId }) {
       if (!checkPlayerId(state, playerId)) return;
       commit('updatePlayerPlayState', { playerId, state: PlayerState.IDLE });
+      commit('startPlayerIdlePlaying', {
+        playerId,
+        intervalId: setInterval(
+          () => {
+            // Just to make it less boring, add a chance of not playing.
+            if (Math.random() < 0.9) {
+              return;
+            }
+
+            dispatch('advanceIdlePlayer', { playerId });
+          },
+          0.2e3,
+        ),
+      });
+
+      // Sound stuff!
+      pickTune(playerId);
     },
 
     beginPlayerPlay({ state, commit, dispatch }, { playerId }) {
       if (!checkPlayerId(state, playerId)) return;
+
+      if (state.players[playerId].idlePlayingIntervalId != null) {
+        clearInterval(state.players[playerId].idlePlayingIntervalId);
+      }
+
       // First, clean slate to keep out demo data.
       dispatch('initPlayer', { playerId });
 
       // Now, play stuff.
+      commit('stopPlayerIdlePlaying', { playerId });
       commit('updatePlayerPlayState', { playerId, state: PlayerState.PLAYING });
       commit('setPlayerTimeLeft', { playerId, timeLeft: PLAY_TIME });
+
+      // Sound stuff!
+      pickTune(playerId);
     },
 
     playerHitKey({ state, commit, dispatch }, { playerId, key }) {
@@ -146,7 +186,7 @@ export default {
         return;
       }
 
-      if (player.timeLeftTimerId == null) {
+      if (player.timeLeftIntervalId == null) {
         const timerId = setInterval(() => {
           dispatch('tickPlayerTimeLeft', { playerId });
         }, 1e3);
@@ -175,11 +215,30 @@ export default {
       }
     },
 
+    advanceIdlePlayer({ state, dispatch }, { playerId }) {
+      if (!checkPlayerId(state, playerId)) return;
+
+      // Check if any other players are actively playing.
+      // If so, just skip this action.
+
+      const players = Object.keys(state.players).map(id => state.players[id]);
+      if (players.some(player => player.state !== PlayerState.IDLE)) {
+        return;
+      }
+
+      dispatch('advancePlayer', { playerId });
+    },
+
     advancePlayer({ state, commit }, { playerId }) {
       if (!checkPlayerId(state, playerId)) return;
 
-      commit('incrementPlayerKeysScored', { playerId });
       commit('rotatePlayerKeys', { playerId });
+
+      if (state.players[playerId].state === PlayerState.PLAYING) {
+        commit('incrementPlayerKeysScored', { playerId });
+      }
+
+      playNextNote(playerId);
     },
 
     blockPlayer({ state, commit, dispatch }, { playerId, key }) {
@@ -199,10 +258,6 @@ export default {
         clearTimeout(state.players[playerId].blockedTimerId);
         commit('unblockPlayer', { playerId });
       }
-
-      if (state.players[playerId].timeLeftTimerId != null) {
-        commit('rotatePlayerKeys', { playerId });
-      }
     },
 
     endPlayerPlay({ state, commit, dispatch }, { playerId }) {
@@ -213,14 +268,15 @@ export default {
       dispatch('unblockPlayer', { playerId });
       commit('updatePlayerPlayState', { playerId, state: PlayerState.DONE });
 
-      if (player.timeLeftTimerId != null) {
-        clearInterval(player.timeLeftTimerId);
+      if (player.timeLeftIntervalId != null) {
+        clearInterval(player.timeLeftIntervalId);
         commit('stopPlayerTimeLeft', { playerId });
       }
 
       // Let them see their score for however many seconds.
       setTimeout(() => {
         dispatch('initPlayer', { playerId });
+        dispatch('idlePlayer', { playerId });
       }, 10e3);
     },
   },

@@ -55,6 +55,9 @@ export default {
     };
 
     document.addEventListener('keydown', this.keyDownHandler);
+
+    this.$store.dispatch('idlePlayer', { playerId: '0' });
+    this.$store.dispatch('idlePlayer', { playerId: '1' });
   },
 
   beforeDestroy() {
