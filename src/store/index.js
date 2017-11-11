@@ -50,6 +50,9 @@ export default {
         timeLeft: 0,
         timeLeftIntervalId: null,
         keysScored: 0,
+
+        // Scores.
+        leaderboard: [],
       });
     },
 
