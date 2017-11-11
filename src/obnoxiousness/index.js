@@ -1,6 +1,8 @@
 // Setup some sound stuff.
 // NOTE: Currently loads the WHOLE THING
-import Tone from 'tone';
+// import Tone from 'tone';
+import PolySynth from 'tone/Tone/instrument/PolySynth';
+import Synth from 'tone/Tone/instrument/Synth';
 
 import tunes from './tunes';
 
@@ -32,7 +34,8 @@ export function initSoundStuffForPlayer(playerId) {
   const playerStuff = {};
   players[playerId] = playerStuff;
 
-  playerStuff.synth = new Tone.PolySynth(2, Tone.Synth);
+  // playerStuff.synth = new Tone.PolySynth(2, Tone.Synth);
+  playerStuff.synth = new PolySynth(2, Synth);
   playerStuff.synth.toMaster();
   playerStuff.synth.set({
     oscillator: {
