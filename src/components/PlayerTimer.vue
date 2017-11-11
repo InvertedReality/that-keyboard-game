@@ -33,16 +33,40 @@ export default {
 .player-timer {
   position: relative;
   width: 64px;
-
-  box-shadow: inset 0 0 20px 5px rgba(0, 0, 0, 0.2);
 }
 
 .player-timer--0 {
   background: darken($player-0-color, 35%);
+  box-shadow:
+    inset 0 0 0 1px darken($player-0-color, 45%),
+    inset 0 0 20px 5px darken($player-0-color, 40%);
 }
 
 .player-timer--1 {
   background: darken($player-1-color, 35%);
+  box-shadow:
+  inset 0 0 0 1px darken($player-1-color, 45%),
+    inset 0 0 20px 5px darken($player-1-color, 40%);
+}
+
+@keyframes player-0-time-left {
+  from {
+    background: darken($player-0-color, 10%);
+  }
+
+  to {
+    background: lighten($player-0-color, 10%);
+  }
+}
+
+@keyframes player-1-time-left {
+  from {
+    background: darken($player-1-color, 15%);
+  }
+
+  to {
+    background: lighten($player-1-color, 15%);
+  }
 }
 
 .remaining {
@@ -55,36 +79,16 @@ export default {
 
   transition: height;
 
-  $stripes-gradient: linear-gradient(
-    45deg,
-    rgba(0,0,0,0.2) 25%,
-    rgba(0,0,0,0) 25%,
-    rgba(0,0,0,0) 50%,
-    rgba(0,0,0,0.2) 50%,
-    rgba(0,0,0,0.2) 75%,
-    rgba(0,0,0,0) 75%,
-    rgba(0,0,0,0) 0
-  );
-
-  $background-size: 50px;
-
-  background-position: auto top;
-  background-origin: padding-box;
-  background-clip: border-box;
-
-  box-shadow:
-    inset 0 4px 4px -2px rgba(255, 255, 255, 0.4),
-    inset -40px 0 50px -25px rgba(0, 0, 0, 0.5),
-    inset 40px 0 50px -25px rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 32px 0 rgba(0, 0, 0, 0.7);
 
   .player-timer--0 & {
-    background: $stripes-gradient, $player-0-color;
-    background-size: $background-size $background-size;
+    background: $player-0-color;
+    animation: player-0-time-left ease-in-out 0.7s 0s alternate infinite;
   }
 
   .player-timer--1 & {
-    background: $stripes-gradient, $player-1-color;
-    background-size: $background-size $background-size;
+    background: $player-1-color;
+    animation: player-1-time-left ease-in-out 0.7s 0s alternate infinite;
   }
 }
 </style>
