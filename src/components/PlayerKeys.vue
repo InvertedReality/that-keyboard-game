@@ -2,10 +2,10 @@
   <div :class="['player-keys', `player-keys--${playerId}`]">
     <div class="keys-container">
       <div v-for="(key, index) in player.keys" :key="key.id" class="key-row">
-        <div :class="{ 'key': true, 'key--current': key.key === 0 }"></div>
-        <div :class="{ 'key': true, 'key--current': key.key === 1 }"></div>
-        <div :class="{ 'key': true, 'key--current': key.key === 2 }"></div>
-        <div :class="{ 'key': true, 'key--current': key.key === 3 }"></div>
+        <div :class="keyClasses(0, key, index)"></div>
+        <div :class="keyClasses(1, key, index)"></div>
+        <div :class="keyClasses(2, key, index)"></div>
+        <div :class="keyClasses(3, key, index)"></div>
       </div>
     </div>
   </div>
@@ -23,6 +23,18 @@ export default {
   computed: {
     player() {
       return this.$store.state.players[this.playerId];
+    },
+  },
+
+  methods: {
+    keyClasses(thisKey, rowKey, rowIndex) {
+      const missed = rowIndex === 0 && this.player.blockedKey === thisKey;
+
+      return {
+        key: true,
+        'key--current': thisKey === rowKey.key && !missed,
+        'key--missed': missed,
+      };
     },
   },
 };

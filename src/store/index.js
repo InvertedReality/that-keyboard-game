@@ -199,6 +199,10 @@ export default {
         clearTimeout(state.players[playerId].blockedTimerId);
         commit('unblockPlayer', { playerId });
       }
+
+      if (state.players[playerId].timeLeftTimerId != null) {
+        commit('rotatePlayerKeys', { playerId });
+      }
     },
 
     endPlayerPlay({ state, commit, dispatch }, { playerId }) {
