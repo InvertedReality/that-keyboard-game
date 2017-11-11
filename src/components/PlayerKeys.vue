@@ -2,10 +2,16 @@
   <div :class="['player-keys', `player-keys--${playerId}`]">
     <div class="keys-container">
       <div v-for="(key, index) in player.keys" :key="key.id" class="key-row">
-        <div :class="keyClasses(0, key, index)"></div>
-        <div :class="keyClasses(1, key, index)"></div>
-        <div :class="keyClasses(2, key, index)"></div>
-        <div :class="keyClasses(3, key, index)"></div>
+        <div
+          v-for="keyIndex in [0, 1, 2, 3]"
+          :class="keyClasses(keyIndex, key, index)"
+        >
+          <div class="key-well">
+            <div class="key-button">
+              <div class="key-button-top"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -37,6 +43,8 @@ export default {
       };
     },
   },
+
+  components: {},
 };
 </script>
 
@@ -45,7 +53,7 @@ export default {
 
 .player-keys {
   overflow: hidden;
-  background: #888;
+  background: #333;
 }
 
 .keys-container {
@@ -69,31 +77,121 @@ export default {
 
   flex: 1 1 auto;
 
-  margin-top: -10px;
-  background-color: $color-ivory;
+  display: flex;
+  align-items: stretch;
+}
 
-  border: 1px solid rgba(0, 0, 0, 0.5);
-  border-top: 0 none;
-  border-bottom-right-radius: $border-radius;
-  border-bottom-left-radius: $border-radius;
+.key-well {
+  flex: 1 1 auto;
+  margin: 5px;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: stretch;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 1px 1px transparentize(#fff, 0.95);
+}
+
+$other-key-button-color: #333;
+$other-key-button-top-color: #555;
+
+.key-button,
+.key-button-top {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  border-radius: 6px;
+}
+
+.key-button {
+  margin: 8px 8px 4px;
+  background: $other-key-button-color;
   box-shadow:
-    0 8px 12px -4px rgba(0, 0, 0, 0.7),
-    inset 2px 2px 3px 0px rgba(255, 255, 255, 1),
-    inset -1px -2px 3px 0px rgba(0, 0, 0, 0.4);
+    inset 0 6px 6px 3px rgba(0, 0, 0, 0.5),
+    inset 0 -8px 8px -4px rgba(0, 0, 0, 0.3);
+}
+
+.key-button-top {
+  margin: -6px 0 10px;
+  background: $other-key-button-top-color;
+
+  box-shadow:
+    inset -1px -1px 2px 0px rgba(0, 0, 0, 0.3),
+    inset 0 0 32px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes missed-key-button {
+  from {
+    background-color: darken($key-missed-color, 25%);
+  }
+
+  50% {
+    background-color: $other-key-button-color;
+  }
+}
+
+@keyframes missed-key-button-top {
+  from {
+    background-color: $key-missed-color;
+  }
+
+  50% {
+    background-color: $other-key-button-top-color;
+  }
 }
 
 .key--current {
-  .player-keys--0 & {
-    background: $player-0-color;
+  .key-button {
+    .player-keys--0 & {
+      background: darken($player-0-color, 25%);
+    }
+
+    .player-keys--1 & {
+      background: darken($player-1-color, 35%);
+    }
   }
 
-  .player-keys--1 & {
-    background: $player-1-color;
+  .key-button-top {
+    .player-keys--0 & {
+      background: darken($player-0-color, 5%);
+    }
+
+    .player-keys--1 & {
+      background: darken($player-1-color, 15%);
+    }
   }
 }
 
 .key--missed {
-  // animation: missedkey 1s ease-in-out 0s infinite alternate;
-  animation: missedkey 0.7s steps(1, end) 0s infinite;
+  .key-button {
+    animation: missed-key-button 0.7s step-end 0s infinite;
+  }
+
+  .key-button-top {
+    animation: missed-key-button-top 0.7s step-end 0s infinite;
+  }
 }
+
+// TODO: Implement press animations.
+// .key-row--pressed .key--current {
+//   .key-button {
+//     .player-keys--0 & {
+//       background: darken($player-0-color, 15%);
+//     }
+//
+//     .player-keys--1 & {
+//       background: darken($player-1-color, 25%);
+//     }
+//   }
+//
+//   .key--current .key-button-top {
+//     .player-keys--0 & {
+//       background: lighten($player-0-color, 10%);
+//     }
+//
+//     .player-keys--1 & {
+//       background: lighten($player-1-color, 0%);
+//     }
+//   }
+// }
 </style>
