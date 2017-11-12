@@ -1,10 +1,10 @@
 <template lang="html">
   <div :class="['player-keys', `player-keys--${playerId}`]">
-    <div class="keys-container">
-      <div v-for="(key, index) in player.keys" :key="key.id" class="key-row">
+    <transition-group name="key-row" class="keys-container" tag="div">
+      <div v-for="(key, rowIndex) in player.keys" :key="key.id" class="key-row">
         <div
           v-for="keyIndex in [0, 1, 2, 3]"
-          :class="keyClasses(keyIndex, key, index)"
+          :class="keyClasses(keyIndex, key, rowIndex)"
         >
           <div class="key-well">
             <div class="key-button">
@@ -13,7 +13,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </transition-group>
   </div>
 </template>
 
@@ -35,16 +35,17 @@ export default {
   methods: {
     keyClasses(thisKey, rowKey, rowIndex) {
       const missed = rowIndex === 0 && this.player.blockedKey === thisKey;
+      const current = thisKey === rowKey.key && !missed;
+      const active = current && rowIndex === 0;
 
       return {
         key: true,
-        'key--current': thisKey === rowKey.key && !missed,
+        'key--current': current,
+        'key--active': active,
         'key--missed': missed,
       };
     },
   },
-
-  components: {},
 };
 </script>
 
@@ -63,6 +64,9 @@ export default {
   flex-direction: column-reverse;
 }
 
+
+$key-row-transition-time: 0.3s;
+
 .key-row {
   flex: 0 0 auto;
   height: 16.7%;
@@ -70,6 +74,12 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: stretch;
+
+  transition: height $key-row-transition-time;
+}
+
+.key-row-leave-active {
+  height: 0%;
 }
 
 .key {
@@ -79,6 +89,13 @@ export default {
 
   display: flex;
   align-items: stretch;
+
+  margin-bottom: 0%;
+  transition: margin-bottom $key-row-transition-time;
+
+  .key-row-leave-active & {
+    margin-bottom: -25%;
+  }
 }
 
 .key-well {
@@ -120,26 +137,6 @@ $other-key-button-top-color: #555;
     inset 0 0 32px 8px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes missed-key-button {
-  from {
-    background-color: darken($key-missed-color, 25%);
-  }
-
-  50% {
-    background-color: $other-key-button-color;
-  }
-}
-
-@keyframes missed-key-button-top {
-  from {
-    background-color: $key-missed-color;
-  }
-
-  50% {
-    background-color: $other-key-button-top-color;
-  }
-}
-
 .key--current {
   .key-button {
     .player-keys--0 & {
@@ -159,6 +156,90 @@ $other-key-button-top-color: #555;
     .player-keys--1 & {
       background: darken($player-1-color, 15%);
     }
+  }
+}
+
+@keyframes player-0-active-key-button {
+  from {
+    background: darken($player-0-color, 35%);
+  }
+
+  to {
+    background: darken($player-0-color, 15%);
+  }
+}
+
+@keyframes player-1-active-key-button {
+  from {
+    background: darken($player-1-color, 45%);
+  }
+
+  to {
+    background: darken($player-1-color, 25%);
+  }
+}
+
+@keyframes player-0-active-key-button-top {
+  from {
+    background: darken($player-0-color, 15%);
+  }
+
+  to {
+    background: lighten($player-0-color, 5%);
+  }
+}
+
+@keyframes player-1-active-key-button-top {
+  from {
+    background: darken($player-1-color, 25%);
+  }
+
+  to {
+    background: darken($player-1-color, 5%);
+  }
+}
+
+.key--active {
+  $pulse-animation-time: (0.7s / 2);
+
+  .key-button {
+    .player-keys--0 & {
+      animation: player-0-active-key-button $pulse-animation-time ease-in-out 0s alternate infinite;
+    }
+
+    .player-keys--1 & {
+      animation: player-1-active-key-button $pulse-animation-time ease-in-out 0s alternate infinite;
+    }
+  }
+
+  .key-button-top {
+    .player-keys--0 & {
+      animation: player-0-active-key-button-top $pulse-animation-time ease-in-out 0s alternate infinite;
+    }
+
+    .player-keys--1 & {
+      animation: player-1-active-key-button-top $pulse-animation-time ease-in-out 0s alternate infinite;
+    }
+  }
+}
+
+@keyframes missed-key-button {
+  from {
+    background-color: darken($key-missed-color, 25%);
+  }
+
+  50% {
+    background-color: $other-key-button-color;
+  }
+}
+
+@keyframes missed-key-button-top {
+  from {
+    background-color: $key-missed-color;
+  }
+
+  50% {
+    background-color: $other-key-button-top-color;
   }
 }
 

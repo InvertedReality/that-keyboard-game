@@ -2,7 +2,8 @@
   <div class="game">
     <div class="player-container">
       <div class="player-play-items">
-        <PlayerKeys class="keys" :playerId="0" />
+        <PlayerKeys key="human" v-if="player0IsPlaying" class="keys" :playerId="0" />
+        <PlayerKeys key="demo" v-if="!player0IsPlaying" class="keys" :playerId="0" />
         <PlayerTimer class="timer" :playerId="0" />
       </div>
       <PlayerOverlays class="player-overlays" :playerId="0" />
@@ -10,7 +11,8 @@
     <div class="player-container">
       <div class="player-play-items">
         <PlayerTimer class="timer" :playerId="1" />
-        <PlayerKeys class="keys" :playerId="1" />
+        <PlayerKeys key="human" v-if="player1IsPlaying" class="keys" :playerId="1" />
+        <PlayerKeys key="demo" v-if="!player1IsPlaying" class="keys" :playerId="1" />
       </div>
       <PlayerOverlays class="player-overlays" :playerId="1" />
     </div>
@@ -18,7 +20,7 @@
 </template>
 
 <script>
-import { Player0Keys, Player1Keys } from '@/consts';
+import { Player0Keys, Player1Keys, PlayerState } from '@/consts';
 
 import PlayerKeys from './PlayerKeys';
 import PlayerTimer from './PlayerTimer';
@@ -67,6 +69,29 @@ export default {
   methods: {
     handlePlayerKeyPress(playerId, key) {
       this.$store.dispatch('playerHitKey', { playerId, key });
+    },
+
+    isPlayerPlaying(playerState) {
+      switch (playerState) {
+        case PlayerState.PLAYING:
+        case PlayerState.DONE: {
+          return true;
+        }
+
+        default: {
+          return false;
+        }
+      }
+    },
+  },
+
+  computed: {
+    player0IsPlaying() {
+      return this.isPlayerPlaying(this.$store.state.players['0'].state);
+    },
+
+    player1IsPlaying() {
+      return this.isPlayerPlaying(this.$store.state.players['1'].state);
     },
   },
 
